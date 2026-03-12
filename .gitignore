@@ -1,0 +1,43 @@
+# ----------------------------
+# Python compiled files
+# ----------------------------
+__pycache__/
+*.py[cod]        # *.pyc, *.pyo, *.pyd
+*$py.class
+
+# ----------------------------
+# Virtual environments
+# ----------------------------
+venv/
+env/
+.venv/
+.env/
+env.bak/
+venv.bak/
+python_libraries/
+
+# ----------------------------
+# Distribution / packaging
+# ----------------------------
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+# ----------------------------
+# IDE / Editor
+# ----------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ----------------------------
+# Logs and temporary files
+# ----------------------------
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store  # для macOS
