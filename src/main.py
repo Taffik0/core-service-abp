@@ -14,6 +14,7 @@ from src.kafka_listeners import kafka_listaners_init
 from src.background_tasks.tasks_init import start_background_processes, stop_background_processes
 from src.logger import logger
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await dbmanager.load()
@@ -58,7 +59,7 @@ origins = [
     "http://5.129.222.142:6010"
 ]
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, root_path="/api/user-data")
 app.include_router(routers)
 
 app.add_middleware(
@@ -71,4 +72,5 @@ app.add_middleware(
 
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", port=5010, reload=True)
+    uvicorn.run("src.main:app", host="0.0.0.0",
+                port=5010, reload=True, workers=6)
