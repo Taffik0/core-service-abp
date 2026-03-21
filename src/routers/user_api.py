@@ -19,7 +19,7 @@ router = APIRouter()
 user_cache = TTLCache(maxsize=1000, ttl=30)
 
 
-class UserBatchIn(BaseModel):
+class UserBulkIn(BaseModel):
     uuids: conlist(UUID, min_length=1, max_length=100)
 
 
@@ -41,9 +41,9 @@ async def get_not_me_user_data(user_id: str):
     return {"message": f"Данные пользователя {user_id}"}
 
 
-@router.post("/users/batch")
+@router.post("/users/bulk")
 async def get_user_by_uuids(
-        user_batch: UserBatchIn,
+        user_batch: UserBulkIn,
         token: AuthToken = Depends(require_auth),
         user_service: UsersService = Depends(get_user_service)):
     return await user_service.get_users_by_uuids(user_batch.uuids)
