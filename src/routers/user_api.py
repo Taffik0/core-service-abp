@@ -52,8 +52,8 @@ async def get_user_by_uuids(
 @router.get("/users/me")
 async def get_user_by_jwt(token: AuthToken = Depends(require_auth),
                           user_service: UsersService = Depends(get_user_service)):
-    if token.uuid in user_cache:
-        return user_cache[token.uuid]
+    # if token.uuid in user_cache:
+    #    return user_cache[token.uuid]
     user = await user_service.get_user(token.uuid)
     user_cache[token.uuid] = user
     return user

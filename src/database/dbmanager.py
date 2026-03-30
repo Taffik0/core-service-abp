@@ -18,7 +18,7 @@ async def load():
         host=DB_URL,
         port=5432,
         min_size=1,
-        max_size=100,
+        max_size=20,
     )
     print(db_pool)
 
