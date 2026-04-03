@@ -54,9 +54,15 @@ origins = [
     "http://localhost",
     "http://127.0.0.1:5678",
     "http://localhost:5678",
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    "http://5.129.222.142:6010"
+    "http://127.0.0.1:80",
+    "http://localhost:80",
+    "http://5.129.222.142:6010",
+    "https://localhost",
+    "https://127.0.0.1:5678",
+    "https://localhost:5678",
+    "https://127.0.0.1:80",
+    "https://localhost:80",
+    "https://5.129.222.142:6010"
 ]
 
 app = FastAPI(lifespan=lifespan, root_path="/api/user-data")
@@ -73,4 +79,4 @@ app.add_middleware(
 
 if __name__ == "__main__":
     uvicorn.run("src.main:app", host="0.0.0.0",
-                port=5010, reload=True, workers=6)
+                port=5010, log_level="debug", reload=True)

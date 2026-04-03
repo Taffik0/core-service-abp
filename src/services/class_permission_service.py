@@ -4,15 +4,20 @@ from src.database.repository.users_schools_ref_repository import UsersSchoolsRef
 from src.models.user.user_type_enum import UserTypes
 
 from src.database.repository.users_classes_ref_repository import UsersClassesRefRepository
+from src.database.repository.class_repository import ClassRepository
 
 from src.models.class_policy import ClassScope, PermissionAction, POLICIES
+
+from src.logger import logger
 
 
 class ClassPermissionService:
     def __init__(self, users_classes_res_repo: UsersClassesRefRepository,
-                 users_schools_ref_repository: UsersSchoolsRefRepository):
+                 users_schools_ref_repository: UsersSchoolsRefRepository,
+                 class_repo: ClassRepository):
         self.users_classes_res_repo = users_classes_res_repo
         self.users_schools_ref_repository = users_schools_ref_repository
+        self.class_repo = class_repo
 
     async def can(self, uuid: UUID,
                   role: UserTypes,
@@ -23,6 +28,13 @@ class ClassPermissionService:
         policy = POLICIES.get((scope, action))
         if not policy:
             return False
+
+        if role.DIRECTOR:
+            school_class = await self.class_repo.get_class_by_id(class_id)
+            school_ref = await self.users_schools_ref_repository.get_user_school_ref(user_uuid=uuid,
+                                                                                     school_id=school_class.school_id)
+            if school_ref:
+                return True
 
         if role not in policy.roles:
             return False

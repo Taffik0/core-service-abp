@@ -17,50 +17,49 @@ class KafkaListener:
                        for msg_handler in message_handlers]
         self.bootstrap_servers = bootstrap_servers
 
+    async def consume(self):
+        delay = 1
 
-async def consume(self):
-    delay = 1
+        while True:
+            consumer = None
+            try:
+                logger.info(f"connecting to {self.bootstrap_servers}")
 
-    while True:
-        consumer = None
-        try:
-            logger.info(f"connecting to {self.bootstrap_servers}")
+                consumer = AIOKafkaConsumer(
+                    *self.topics,
+                    bootstrap_servers=self.bootstrap_servers,
+                    value_deserializer=lambda m: json.loads(m.decode("utf-8")),
+                    auto_offset_reset="earliest",
+                    enable_auto_commit=False,
+                    group_id=self.group_id
+                )
 
-            consumer = AIOKafkaConsumer(
-                *self.topics,
-                bootstrap_servers=self.bootstrap_servers,
-                value_deserializer=lambda m: json.loads(m.decode("utf-8")),
-                auto_offset_reset="earliest",
-                enable_auto_commit=False,
-                group_id=self.group_id
-            )
+                await consumer.start()
+                logger.info("kafka connected")
 
-            await consumer.start()
-            logger.info("kafka connected")
+                delay = 1  # сбрасываем backoff
 
-            delay = 1  # сбрасываем backoff
+                async for msg in consumer:
+                    handler = self.message_handlers.get(msg.topic)
 
-            async for msg in consumer:
-                handler = self.message_handlers.get(msg.topic)
+                    if not handler:
+                        logger.warning(f"No handler for topic {msg.topic}")
+                        continue
 
-                if not handler:
-                    logger.warning(f"No handler for topic {msg.topic}")
-                    continue
+                    try:
+                        await handler.process_message(msg)
+                        await consumer.commit()
 
-                try:
-                    await handler.process_message(msg)
-                    await consumer.commit()
+                    except Exception:
+                        logger.exception("Message processing failed")
 
-                except Exception:
-                    logger.exception("Message processing failed")
+            except Exception as e:
+                logger.exception(f"kafka consumer crashed: {e}")
 
-        except Exception as e:
-            logger.exception(f"kafka consumer crashed: {e}")
+            finally:
+                if consumer:
+                    await consumer.stop()
 
-        finally:
-            if consumer:
-                await consumer.stop()
-
-        delay = min(delay * 1.5, 60)
-        logger.info(f"reconnecting in {delay} sec")
-        await asyncio.sleep(delay)
+            delay = min(delay * 1.5, 60)
+            logger.info(f"reconnecting in {delay} sec")
+            await asyncio.sleep(delay)

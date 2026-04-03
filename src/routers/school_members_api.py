@@ -4,6 +4,8 @@ from uuid import UUID
 
 from lib.fast_token import require_auth, AuthToken
 
+from src.logger import logger
+
 from src.services.school_entry_request_service import SchoolEntryRequestService
 from src.services.use_case.send_school_entry_request_use_case import SendSchoolEntryRequestUseCase
 from src.services.school_member_service import SchoolMemberService
@@ -93,6 +95,7 @@ async def get_teachers(
         token: AuthToken = Depends(require_auth),
         sc_members_service: SchoolMemberService = Depends(get_school_member_service)
 ):
+    logger.info("fff")
     return await sc_members_service.get_teachers(school_id, token.uuid, token.user_type, start=start, count=count)
 
 

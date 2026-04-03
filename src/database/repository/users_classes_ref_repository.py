@@ -6,6 +6,8 @@ from uuid import UUID
 from src.database.dbmanager import get_pool
 from src.models.user.user_type_enum import UserTypes
 
+from src.logger import logger
+
 
 @dataclass
 class UsersSchoolRefDBDTO:
@@ -146,4 +148,5 @@ class UsersClassesRefRepositoryPG(UsersClassesRefRepository):
           AND u.type = $2;"""
         async with get_pool().acquire() as conn:  # type: Connection
             records = await conn.fetch(query, class_id, user_role.value)
+            logger.info(f"users class refs for {class_id} {user_role}")
         return [self._to_ref_dto(record) for record in records]

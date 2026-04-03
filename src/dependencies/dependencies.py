@@ -14,4 +14,4 @@ def get_class_repository() -> ClassRepository:
 
 
 def get_teacher_repository() -> TeacherRepository:
-    return  TeacherRepositoryPG()
+    return TeacherRepositoryPG()

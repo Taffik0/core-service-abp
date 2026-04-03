@@ -4,6 +4,7 @@ from asyncpg import Connection
 
 from src.database.dbmanager import get_pool
 from src.models.user.user_types import UserBaseType, TeacherType, StudentType
+from src.models.user.user_type_enum import UserTypes
 
 
 @dataclass
@@ -92,10 +93,11 @@ class SchoolMembershipRepositoryPG(SchoolMembershipRepository):
         JOIN users us ON usr.user_uuid = us.uuid
         JOIN student_type AS st ON usr.user_uuid = st.user_uuid
         WHERE usr.school_id = $1
+        AND us.type = $4
         LIMIT $2 OFFSET $3
         """
 
-        records = await conn.fetch(query, school_id, count, start)
+        records = await conn.fetch(query, school_id, count, start, UserTypes.STUDENT.value)
 
         return [
             StudentWithUser(
@@ -132,16 +134,16 @@ class SchoolMembershipRepositoryPG(SchoolMembershipRepository):
         JOIN users us ON usr.user_uuid = us.uuid
         JOIN teacher_type tch ON usr.user_uuid = tch.user_uuid
         WHERE usr.school_id = $1
+        AND us.type = $4
         LIMIT $2 OFFSET $3
         """
 
-        records = await conn.fetch(query, school_id, count, start)
+        records = await conn.fetch(query, school_id, count, start, UserTypes.TEACHER.value)
 
         return [
             TeacherWithUser(
                 self._to_user_obj(r),
                 TeacherType(
-                    id=r["id"],
                     user_uuid=r["user_uuid"],
                     subject_id=r["subject_id"])
             )
